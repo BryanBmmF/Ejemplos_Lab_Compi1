@@ -25,5 +25,4 @@ comentario de bloque
     * de varias lineas
 ***/
 
-x ?
-
+z ?
