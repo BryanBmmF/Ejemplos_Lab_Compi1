@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">DemoMorse</string>
+    <string name="ingrese_una_clave">Ingrese una clave:</string>
+</resources>

@@ -1,0 +1,3 @@
+include ':java-cup-11b-runtime'
+include ':app'
+rootProject.name = "DemoMorse"

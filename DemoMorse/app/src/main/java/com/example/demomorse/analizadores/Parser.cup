@@ -1,0 +1,69 @@
+package com.example.demomorse.analizadores;
+
+import com.example.demomorse.manejadores.ManejadorMorse;
+import java.util.ArrayList;
+import java.util.List;
+import java_cup.runtime.*;
+
+//agregar biblioteca cup como dependencia en android studio
+// https://developer.android.com/studio/projects/android-library?hl=es
+
+parser code {:
+
+    private List<String> errorsList;
+    private List<ManejadorMorse> clavesList;
+	public Parser(Lexer lex) {
+		super(lex);
+		this.errorsList = new ArrayList();
+		this.clavesList = new ArrayList();
+	}
+	@Override
+        public void syntax_error(Symbol st) {
+        	Token token = (Token) st.value;
+            report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+
+            System.out.println("Error Sintactico con el Token: " + token.getLexeme() + " este no pertenece a la estructura - linea: " + token.getLine() + ", columna: " + token.getColumn());
+                    errorsList.add(String.format("Error Sintactico con el Token: '%s' este no pertenece a la estructura- linea: %d  columna: %d. Corrige e intenta de nuevo.", token.getLexeme(), token.getLine(), token.getColumn()));
+        }
+
+        //retorna list de claves morse
+        public List<ManejadorMorse> getClavesList(){
+                return clavesList;
+	    }
+	    //retorna list de errores sintacticos
+        public List<String> getErrorsList(){
+	        return errorsList
+	        ;
+	    }
+
+:}
+
+/* Terminals (tokens returned by the scanner). */
+terminal Token	PS;
+terminal Token	LN;
+terminal Token  ENTERO;
+
+/* Non-Terminals (created scanner). */
+non terminal  exp, lin, pun;
+
+/* The grammar : */
+
+start with exp;
+exp ::= lin:l pun:p
+        | pun:p lin:l
+        | pun:p
+        | lin:l
+        | error	{:
+            System.out.println("Error en expresion");
+        :}
+;
+
+lin ::= ENTERO:e LN:ln {:
+        clavesList.add(new ManejadorMorse(Integer.parseInt(e.getLexeme()), ln.getLexeme()));
+    :}
+;
+pun ::= ENTERO:e PS:ps {:
+        clavesList.add(new ManejadorMorse(Integer.parseInt(e.getLexeme()), ps.getLexeme()));
+    :}
+;
+
