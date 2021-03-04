@@ -125,7 +125,8 @@ public class Parser extends java_cup.runtime.lr_parser {
 	    }
 	    //retorna list de errores sintacticos
         public List<String> getErrorsList(){
-	        return errorsList;
+	        return errorsList
+	        ;
 	    }
 
 

@@ -1,0 +1,115 @@
+package com.bryan.ejemploresult.analizadores;
+
+import com.bryan.ejemploresult.Expr;
+import com.bryan.ejemploresult.analizadores.Token;
+import java.util.ArrayList;
+import java.util.List;
+import java_cup.runtime.*;
+
+//agregar biblioteca cup como dependencia en android studio
+// https://developer.android.com/studio/projects/android-library?hl=es
+
+parser code {:
+
+    private List<String> errorsList;
+	public Parser(Lexer lex) {
+		super(lex);
+		this.errorsList = new ArrayList();
+	}
+	@Override
+        public void syntax_error(Symbol st) {
+        	Token token = (Token) st.value;
+            report_error("Error Sintactico con el  Token:"+ token.getLexeme()+" este no pertenece a la estructura - linea: "+token.getLine()+" - columna: "+token.getColumn() + "\n",null);
+
+            System.out.println("Error Sintactico con el Token: " + token.getLexeme() + " este no pertenece a la estructura - linea: " + token.getLine() + ", columna: " + token.getColumn());
+                    errorsList.add(String.format("Error Sintactico con el Token: '%s' este no pertenece a la estructura- linea: %d  columna: %d. Corrige e intenta de nuevo.", token.getLexeme(), token.getLine(), token.getColumn()));
+        }
+	    //retorna list de errores sintacticos
+        public List<String> getErrorsList(){
+	        return errorsList
+	        ;
+	    }
+
+:}
+
+/* Terminals (tokens returned by the scanner). */
+terminal Token NUMERO_ENTERO;
+terminal Token PARENT_A;
+terminal Token PARENT_C;
+terminal Token SUMA;
+terminal Token RESTA;
+terminal Token MULT;
+terminal Token DIV;
+
+
+/* Non-Terminals (created scanner). */
+non terminal Expr  expr, expr2, expr3;
+
+/* The grammar : */
+
+start with expr;
+
+//expresiones
+expr      ::= expr:e1 SUMA:e2 expr2:e3 
+					{:
+                        //se asigna la informacion a subir en el arbol sintactico
+                        RESULT = new Expr(e1.getAcarreo()+e2.getLexeme()+e3.getAcarreo(), e1.getResultado()+e3.getResultado());
+                        //Mostramos la informacion a subir
+                        System.out.println("**************Expresion*************");
+                        System.out.println("    Suma = "+ RESULT.getAcarreo());
+                        System.out.println("**************Expresion*************");
+                   :}
+            | expr:e1 RESTA:e2 expr2:e3
+            		{: 
+                        RESULT = new Expr(e1.getAcarreo()+e2.getLexeme()+e3.getAcarreo(), e1.getResultado()-e3.getResultado());
+                        System.out.println("**************Expresion*************");
+                        System.out.println("    Resta ="+ RESULT.getAcarreo());
+                        System.out.println("**************Expresion*************");                 
+                    :}
+            | expr2:e1
+            	{:
+                    RESULT = e1; 
+                :}
+        ;
+//terminos
+expr2 ::=  expr2:e1 MULT:e2 expr3:e3  
+				{: 
+                    RESULT = new Expr(e1.getAcarreo()+e2.getLexeme()+e3.getAcarreo(), e1.getResultado()*e3.getResultado());
+                    System.out.println("**************Termino**************");
+                    System.out.println("    Multiplicacion = "+ RESULT.getAcarreo()); 
+                    System.out.println("**************Termino**************");
+                :}
+		   | expr2:e1 DIV:e2 expr3:e3
+		   		{:
+                    RESULT = new Expr(e1.getAcarreo()+e2.getLexeme()+e3.getAcarreo(), e1.getResultado()/e3.getResultado());
+                    System.out.println("**************Termino**************");
+                    System.out.println("    Division = "+ RESULT.getAcarreo());
+                    System.out.println("**************Termino**************");
+                :}
+		   | expr3:e1
+		   		{: 
+                   RESULT = e1;
+                :} 
+		;
+//factores
+expr3 ::= 	NUMERO_ENTERO:e1
+			    {: 
+                    //devuelvo el token entero
+                    RESULT = new Expr(e1.getLexeme(), Integer.parseInt(e1.getLexeme()));
+                    System.out.println("**************Factor**************");
+                    System.out.println("    Numero = "+ RESULT.getAcarreo());
+                    System.out.println("**************Factor**************");
+
+                :} 
+        	| PARENT_A:e1 expr:e2 PARENT_C:e3
+        	    {:
+                    //se devuelve una expresion con parentesis
+                    e2.setAcarreo(e1.getLexeme()+e2.getAcarreo()+e3.getLexeme());
+                    RESULT = e2;
+                    System.out.println("**************Factor**************");
+                    System.out.println("    Expresion = "+ RESULT.getAcarreo());
+                    System.out.println("**************Factor**************"); 
+                :} 
+        	
+        ;
+
