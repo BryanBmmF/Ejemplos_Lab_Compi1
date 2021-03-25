@@ -1,0 +1,12 @@
+<div class="card" style="width: 18rem;">
+    <div class="card-body">
+        <h5 class="card-title">Calculadora</h5>
+        <form action="#">
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Ingrese una Expresion: </label>
+                <input type="text" [(ngModel)]="expresion" class="form-control" id="expresion" name="expresion">
+            </div>
+            <button type="submit" onclick="calcular()" class="btn btn-primary">Calcular</button>
+        </form>
+    </div>
+</div>
